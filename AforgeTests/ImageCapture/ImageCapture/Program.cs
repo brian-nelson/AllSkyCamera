@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AForge.Video;
 using AForge.Imaging;
 using AForge.Video.DirectShow;
+using AForge.Vision.Motion;
 
 namespace ImageCapture
 {
@@ -16,9 +19,12 @@ namespace ImageCapture
     {
         private static int imageCount = 0;
         private static Guid sequenceGuid = Guid.NewGuid();
+        private static MotionDetector detector = new MotionDetector(new TwoFramesDifferenceDetector(false));
 
         private static void Main(string[] args)
         {
+            Trace.Listeners.Add(new ConsoleTraceListener());
+
             // enumerate video devices
             var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
 
@@ -63,15 +69,18 @@ namespace ImageCapture
 
         private static void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
         {
-            imageCount ++;
-
             // get new frame
             Bitmap bitmap = eventArgs.Frame;
 
-            string filename = "c:\\temp\\" + sequenceGuid + "_" + imageCount + ".png";
+            if (detector.ProcessFrame(bitmap) > 0.05)
+            {
+                imageCount++;
 
-            bitmap.Save(filename, ImageFormat.Png);
-            // process the frame
+                string filename = "c:\\temp\\" + DateTime.UtcNow.ToFileTimeUtc() + ".png";
+
+                bitmap.Save(filename, ImageFormat.Png);
+                Trace.WriteLine(string.Format("Image saved - {0}", imageCount));
+            }
         }
     }
 }
