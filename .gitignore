@@ -2,3 +2,9 @@ AforgeTests/ImageCapture/ImageCapture/obj/
 AforgeTests/ImageCapture/packages/
 AforgeTests/ImageCapture/ImageCapture/bin/
 *.suo
+*.config
+src/ascLibrary/obj/
+src/ascImageService/obj/
+src/ascConsole/packages/
+src/ascConsole/bin/
+src/ascConsole/obj/
