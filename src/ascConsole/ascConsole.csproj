@@ -45,9 +45,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\TreeGecko\Libraries\src\tgCommonLibrary\tgCommonLibrary.csproj">
+      <Project>{64FE4175-4C97-4835-AD97-3C4F19E7B4DA}</Project>
+      <Name>tgCommonLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ascLibrary\ascLibrary.csproj">
       <Project>{3e09b52a-1ac5-4f89-b931-37413620e220}</Project>
       <Name>ascLibrary</Name>

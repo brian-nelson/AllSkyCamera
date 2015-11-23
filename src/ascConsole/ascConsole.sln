@@ -13,7 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tgCommonLibrary", "..\..\..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tgAWS", "..\..\..\..\TreeGecko\Libraries\src\tgAWS\tgAWS.csproj", "{02F95722-ADB3-4DE3-8FBA-DF62D39F836B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tgNet", "..\..\..\..\TreeGecko\Libraries\src\tgNet\tgNet.csproj", "{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F4900116-4301-40E4-9461-FC00682A2D1A}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,20 +96,6 @@ Global
 		{02F95722-ADB3-4DE3-8FBA-DF62D39F836B}.Release|x64.Build.0 = Release|x64
 		{02F95722-ADB3-4DE3-8FBA-DF62D39F836B}.Release|x86.ActiveCfg = Release|x86
 		{02F95722-ADB3-4DE3-8FBA-DF62D39F836B}.Release|x86.Build.0 = Release|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Debug|x64.ActiveCfg = Debug|x64
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Debug|x64.Build.0 = Debug|x64
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Debug|x86.ActiveCfg = Debug|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Debug|x86.Build.0 = Debug|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Release|Any CPU.ActiveCfg = Release|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Release|Mixed Platforms.Build.0 = Release|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Release|x64.ActiveCfg = Release|x64
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Release|x64.Build.0 = Release|x64
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Release|x86.ActiveCfg = Release|x86
-		{E6DF32BB-18C9-4BD8-882A-A0CB67383A40}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
