@@ -40,6 +40,8 @@ namespace ascConsole
             string imageCaptureFolder = Config.GetSettingValue("CapturedImageFolder");
             string processedImageFolder = Config.GetSettingValue("ProcessedImageFolder");
 
+            m_ImageProcessingManager = new ImageProcessingManager(imageCaptureFolder, processedImageFolder);
+            m_ImageProcessingManager.Start();
         }
 
         private static void StartTransfer()
@@ -62,7 +64,10 @@ namespace ascConsole
 
         private static void StopProcessing()
         {
-            
+            if (m_ImageProcessingManager != null)
+            {
+                m_ImageProcessingManager.Stop();
+            }
         }
 
         private static void StopTransfer()

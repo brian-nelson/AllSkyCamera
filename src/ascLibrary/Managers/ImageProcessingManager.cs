@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+using AForge.Vision.Motion;
+using TreeGecko.Library.Common.Helpers;
 using TreeGecko.Library.Common.Interfaces;
+using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace ascLibrary.Managers
 {
@@ -17,14 +22,110 @@ namespace ascLibrary.Managers
     /// </summary>
     public class ImageProcessingManager : IRunnable
     {
+        private readonly string m_CapturedImageFolder;
+        private readonly string m_ProcessedImageFolder;
+        private bool m_StopRequested;
+        private MotionDetector m_MotionDetector;
+        private DateTime m_LastSavedImageTime;
+
+        public ImageProcessingManager(
+            string _capturedImageFolder,
+            string _processedImageFolder)
+        {
+            m_CapturedImageFolder = _capturedImageFolder;
+            m_ProcessedImageFolder = _processedImageFolder;
+        }
+
         public void Start()
         {
-            throw new NotImplementedException();
+            m_StopRequested = false;
+            m_MotionDetector = new MotionDetector(new SimpleBackgroundModelingDetector(false));
+
+            //So we always save the first image
+            m_LastSavedImageTime = DateTime.MinValue;
+
+            //Prepare image processing
+            var imageCodec = GetEncoderInfo(ImageFormat.Jpeg);
+            var encoderQuality = Encoder.Quality;
+            var myEncoderParameter = new EncoderParameter(encoderQuality, 90L);
+            EncoderParameters encoderParameters = new EncoderParameters(1);
+            encoderParameters.Param[0] = myEncoderParameter;
+            
+            do
+            {
+                IEnumerable<FileInfo> files = new DirectoryInfo(m_CapturedImageFolder).GetFiles().OrderBy(f => f.Name);
+
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        bool saveImage = false;
+
+                        //Get the new frame
+                        using (var frame = (Bitmap) Bitmap.FromFile(file.FullName))
+                        {
+                            //Has image changed enough to warrent saving
+                            saveImage = m_MotionDetector.ProcessFrame(frame) > 1;
+
+                            //What was the timestamp of the image
+                            string timestamp = Path.GetFileNameWithoutExtension(file.Name);
+                            long ticks;
+                            if (long.TryParse(timestamp, out ticks))
+                            {
+                                //So the image had a timestamp (rather than some random filename).
+                                DateTime imageTime = DateTime.FromFileTime(ticks);
+
+                                //Was the image more than a second from last image.
+                                if ((imageTime - m_LastSavedImageTime).TotalSeconds > 1)
+                                {
+                                    saveImage = true;
+                                }
+
+                                if (saveImage)
+                                {
+                                    m_LastSavedImageTime = imageTime;
+
+                                    string filename = Path.GetFileNameWithoutExtension(file.Name) + ".jpg";
+                                    string fullName = Path.Combine(m_ProcessedImageFolder, filename);
+                                    if (!File.Exists(fullName))
+                                    {
+                                        frame.Save(fullName, imageCodec, encoderParameters);
+                                    }
+                                }
+                            }                            
+                        }
+
+                        file.Delete();
+                    }
+                    catch (Exception ex)
+                    {
+                        TraceFileHelper.Exception(ex);
+                    }
+
+                    Thread.Sleep(1);
+                }
+
+                Thread.Sleep(100);
+            } while (!m_StopRequested);
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            m_StopRequested = true;
+        }
+
+        private ImageCodecInfo GetEncoderInfo(ImageFormat _format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == _format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
         }
     }
 }
