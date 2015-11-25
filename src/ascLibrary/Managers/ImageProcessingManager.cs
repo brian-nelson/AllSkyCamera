@@ -27,13 +27,22 @@ namespace ascLibrary.Managers
         private bool m_StopRequested;
         private MotionDetector m_MotionDetector;
         private DateTime m_LastSavedImageTime;
+        private readonly long m_JpegQuality;
+        private readonly double m_MotionThreshold;
+        private double m_MaximumSecondsPerImage;
 
         public ImageProcessingManager(
             string _capturedImageFolder,
-            string _processedImageFolder)
+            string _processedImageFolder,
+            long _jpegQuality = 85L,
+            double _motionThreshold = 1,
+            double _maximumSecondsPerImage = 5)
         {
             m_CapturedImageFolder = _capturedImageFolder;
             m_ProcessedImageFolder = _processedImageFolder;
+            m_JpegQuality = _jpegQuality;
+            m_MotionThreshold = _motionThreshold;
+            m_MaximumSecondsPerImage = _maximumSecondsPerImage;
         }
 
         public void Start()
@@ -47,7 +56,7 @@ namespace ascLibrary.Managers
             //Prepare image processing
             var imageCodec = GetEncoderInfo(ImageFormat.Jpeg);
             var encoderQuality = Encoder.Quality;
-            var myEncoderParameter = new EncoderParameter(encoderQuality, 90L);
+            var myEncoderParameter = new EncoderParameter(encoderQuality, m_JpegQuality);
             EncoderParameters encoderParameters = new EncoderParameters(1);
             encoderParameters.Param[0] = myEncoderParameter;
             
@@ -62,37 +71,40 @@ namespace ascLibrary.Managers
                         bool saveImage = false;
 
                         //Get the new frame
-                        using (var frame = (Bitmap) Bitmap.FromFile(file.FullName))
+                        using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                         {
-                            //Has image changed enough to warrent saving
-                            saveImage = m_MotionDetector.ProcessFrame(frame) > 1;
-
-                            //What was the timestamp of the image
-                            string timestamp = Path.GetFileNameWithoutExtension(file.Name);
-                            long ticks;
-                            if (long.TryParse(timestamp, out ticks))
+                            using (var frame = (Bitmap) Bitmap.FromStream(stream))
                             {
-                                //So the image had a timestamp (rather than some random filename).
-                                DateTime imageTime = DateTime.FromFileTime(ticks);
+                                //Has image changed enough to warrent saving
+                                saveImage = m_MotionDetector.ProcessFrame(frame) > m_MotionThreshold;
 
-                                //Was the image more than a second from last image.
-                                if ((imageTime - m_LastSavedImageTime).TotalSeconds > 1)
+                                //What was the timestamp of the image
+                                string timestamp = Path.GetFileNameWithoutExtension(file.Name);
+                                long ticks;
+                                if (long.TryParse(timestamp, out ticks))
                                 {
-                                    saveImage = true;
-                                }
+                                    //So the image had a timestamp (rather than some random filename).
+                                    DateTime imageTime = DateTime.FromFileTime(ticks);
 
-                                if (saveImage)
-                                {
-                                    m_LastSavedImageTime = imageTime;
-
-                                    string filename = Path.GetFileNameWithoutExtension(file.Name) + ".jpg";
-                                    string fullName = Path.Combine(m_ProcessedImageFolder, filename);
-                                    if (!File.Exists(fullName))
+                                    //Was the image more than a second from last image.
+                                    if ((imageTime - m_LastSavedImageTime).TotalSeconds > m_MaximumSecondsPerImage)
                                     {
-                                        frame.Save(fullName, imageCodec, encoderParameters);
+                                        saveImage = true;
+                                    }
+
+                                    if (saveImage)
+                                    {
+                                        m_LastSavedImageTime = imageTime;
+
+                                        string filename = Path.GetFileNameWithoutExtension(file.Name) + ".jpg";
+                                        string fullName = Path.Combine(m_ProcessedImageFolder, filename);
+                                        if (!File.Exists(fullName))
+                                        {
+                                            frame.Save(fullName, imageCodec, encoderParameters);
+                                        }
                                     }
                                 }
-                            }                            
+                            }
                         }
 
                         file.Delete();
