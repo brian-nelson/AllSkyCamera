@@ -8,9 +8,8 @@ using System.Threading;
 using AForge.Vision.Motion;
 using TreeGecko.Library.Common.Helpers;
 using TreeGecko.Library.Common.Interfaces;
-using Encoder = System.Drawing.Imaging.Encoder;
 
-namespace ascLibrary.Managers
+namespace AllSkyCamera.Library.Managers
 {
     /// <summary>
     /// This class compares a pipeline of images to determine 

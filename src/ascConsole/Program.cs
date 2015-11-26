@@ -1,5 +1,7 @@
 ﻿using System;
-using ascLibrary.Managers;
+using System.Collections.Generic;
+using AllSkyCamera.Library.Handlers;
+using AllSkyCamera.Library.Managers;
 using TreeGecko.Library.Common.Helpers;
 
 namespace ascConsole
@@ -7,20 +9,16 @@ namespace ascConsole
     class Program
     {
         private static ImageCollectionManager m_ImageCollectionManager;
-        private static ImageProcessingManager m_ImageProcessingManager;
-        private static ImageTransferManager m_ImageTransferManager;
 
         static void Main(string[] _args)
         {
             StartCapture();
-            StartProcessing();
             StartTransfer();
 
             //Wait until done.
             Console.ReadKey();  
           
             StopCapture();
-            StopProcessing();
             StopTransfer();
         }
 
@@ -28,21 +26,25 @@ namespace ascConsole
         {
             //Load required settings
             string cameraName = Config.GetSettingValue("ImageCaptureDevice");
-            string imageCaptureFolder = Config.GetSettingValue("CapturedImageFolder");
+            string processedImageFolder = Config.GetSettingValue("ProcessedImageFolder");
 
-            m_ImageCollectionManager = new ImageCollectionManager(cameraName, imageCaptureFolder);
+            JpegFileHandler fileHandler = new JpegFileHandler(processedImageFolder);
+
+            ImageRetentionHandler retentionHandler = new ImageRetentionHandler(
+                5, 
+                .05,
+                new List<IImageHandler> {fileHandler});
+
+            ImageTagHandler tagHandler = new ImageTagHandler(
+                new List<IImageHandler> {retentionHandler});
+
+            m_ImageCollectionManager = new ImageCollectionManager(
+                cameraName,
+                new List<IImageHandler> {tagHandler});
+
             m_ImageCollectionManager.Start();
         }
 
-        private static void StartProcessing()
-        {
-            //Load required settings
-            string imageCaptureFolder = Config.GetSettingValue("CapturedImageFolder");
-            string processedImageFolder = Config.GetSettingValue("ProcessedImageFolder");
-
-            m_ImageProcessingManager = new ImageProcessingManager(imageCaptureFolder, processedImageFolder);
-            m_ImageProcessingManager.Start();
-        }
 
         private static void StartTransfer()
         {
@@ -59,14 +61,6 @@ namespace ascConsole
             if (m_ImageCollectionManager != null)
             {
                 m_ImageCollectionManager.Stop();
-            }
-        }
-
-        private static void StopProcessing()
-        {
-            if (m_ImageProcessingManager != null)
-            {
-                m_ImageProcessingManager.Stop();
             }
         }
 

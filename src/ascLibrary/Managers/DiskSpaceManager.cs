@@ -1,6 +1,6 @@
 ﻿using TreeGecko.Library.Common.Interfaces;
 
-namespace ascLibrary.Managers
+namespace AllSkyCamera.Library.Managers
 {
     /// <summary>
     /// Periodically checks disk space to make sure that

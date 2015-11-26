@@ -1,35 +1,34 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using AForge.Video;
 using AForge.Video.DirectShow;
+using AllSkyCamera.Library.Handlers;
 using TreeGecko.Library.Common.Helpers;
 using TreeGecko.Library.Common.Interfaces;
 
-namespace ascLibrary.Managers
+namespace AllSkyCamera.Library.Managers
 {
     /// <summary>
-    /// This manager collects images as fast as possible 
+    /// This manager collects images as fast as apossible 
     /// Still frames rather than a video sequence.  These are
     /// stored on disk.
     /// </summary>
     public class ImageCollectionManager : IRunnable
     {
         private readonly string m_VideoDeviceName;
-        private readonly string m_ImagePath;
+        private readonly List<IImageHandler> m_Handlers;
         
         private bool m_StopRequested;
         private Thread m_ProcessingThread;
 
         public ImageCollectionManager(
             string _videoDeviceName,
-            string _imagePath)
+            List<IImageHandler> _handlers)
         {
             m_VideoDeviceName = _videoDeviceName;
-            m_ImagePath = _imagePath;
+            m_Handlers = _handlers;
         }
 
         public void Start()
@@ -102,10 +101,13 @@ namespace ascLibrary.Managers
             // get new frame
             Bitmap bitmap = _eventArgs.Frame;
 
-            string filename = DateTime.UtcNow.ToFileTimeUtc() + ".png";
-            string fullname = Path.Combine(m_ImagePath, filename);
-
-            bitmap.Save(fullname, ImageFormat.Png);
+            if (m_Handlers != null)
+            {
+                foreach (var imageHandler in m_Handlers)
+                {
+                    imageHandler.HandleImage(bitmap);
+                }
+            }
         }
 
         public void Stop()
