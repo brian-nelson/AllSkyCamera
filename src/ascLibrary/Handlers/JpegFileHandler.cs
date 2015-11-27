@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using AllSkyCamera.Library.Delegates;
 
 namespace AllSkyCamera.Library.Handlers
 {
     public class JpegFileHandler : IImageHandler
     {
+        public FileSaved FileSaved;
         private readonly string m_OutputFolder;
         private readonly List<IImageHandler> m_PostImageHandlers;
         private readonly ImageCodecInfo m_ImageCodec;
@@ -59,6 +61,11 @@ namespace AllSkyCamera.Library.Handlers
 
             string fullName = Path.Combine(m_OutputFolder, filename);
             _bitmap.Save(fullName, m_ImageCodec, m_EncoderParameters);
+
+            if (FileSaved != null)
+            {
+                FileSaved(fullName);
+            }
             
             //Call any post handlers
             if (m_PostImageHandlers != null)

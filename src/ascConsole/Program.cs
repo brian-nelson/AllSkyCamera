@@ -29,6 +29,7 @@ namespace ascConsole
             string processedImageFolder = Config.GetSettingValue("ProcessedImageFolder");
 
             JpegFileHandler fileHandler = new JpegFileHandler(processedImageFolder);
+            fileHandler.FileSaved += FileSaved;
 
             ImageRetentionHandler retentionHandler = new ImageRetentionHandler(
                 5, 
@@ -43,6 +44,11 @@ namespace ascConsole
                 new List<IImageHandler> {tagHandler});
 
             m_ImageCollectionManager.Start();
+        }
+
+        private static void FileSaved(string _filename)
+        {
+            //Send to transfer service
         }
 
 

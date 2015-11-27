@@ -85,6 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Delegates\FileSavedDelegate.cs" />
     <Compile Include="Handlers\ImageRetentionHandler.cs" />
     <Compile Include="Handlers\ImageTagHandler.cs" />
     <Compile Include="Handlers\JpegFileHandler.cs" />

@@ -98,14 +98,16 @@ namespace AllSkyCamera.Library.Managers
 
         private void video_NewFrame(object _sender, NewFrameEventArgs _eventArgs)
         {
-            // get new frame
-            Bitmap bitmap = _eventArgs.Frame;
-
-            if (m_Handlers != null)
+            // get new frame.  Handlers must use the image immediately 
+            //or save it off.  Since we will be disposing it upon completion
+            using (Bitmap bitmap = _eventArgs.Frame)
             {
-                foreach (var imageHandler in m_Handlers)
+                if (m_Handlers != null)
                 {
-                    imageHandler.HandleImage(bitmap);
+                    foreach (var imageHandler in m_Handlers)
+                    {
+                        imageHandler.HandleImage(bitmap);
+                    }
                 }
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using AllSkyCamera.Library.Delegates;
 
 namespace AllSkyCamera.Library.Handlers
 {
@@ -10,6 +11,7 @@ namespace AllSkyCamera.Library.Handlers
     {
         private string m_OutputFolder;
         private List<IImageHandler> m_PostImageHandlers;
+        public FileSaved FileSaved;
 
         public PngFileHandler(
             string _outputFolder,
@@ -34,6 +36,11 @@ namespace AllSkyCamera.Library.Handlers
 
             string fullName = Path.Combine(m_OutputFolder, filename);
             _bitmap.Save(fullName, ImageFormat.Png);
+
+            if (FileSaved != null)
+            {
+                FileSaved(fullName);
+            }
 
             if (m_PostImageHandlers != null)
             {
